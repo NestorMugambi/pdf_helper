@@ -14,6 +14,8 @@ from langchain_community.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 import os
 import getpass
+from dotenv import load_dotenv
+load_dotenv()
 
 
 
