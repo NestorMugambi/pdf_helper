@@ -15,8 +15,7 @@ from langchain.chains.question_answering import load_qa_chain
 import os
 import getpass
 load_dotenv()
-if "GOOGLE_API_KEY" not in os.environ:
-    os.environ["GOOGLE_API_KEY"] = getpass.getpass("AIzaSyAeZ6lZ5N7AyNHYUc-EYYRghGnlanEByoM")
+
 
 st.set_page_config(
     page_title="pdf_assistant",
