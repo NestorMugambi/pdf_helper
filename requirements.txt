@@ -9,3 +9,4 @@ streamlit_pdf_viewer==0.0.8
 openai==1.10.0
 tiktoken==0.5.2
 faiss-cpu==1.7.4
+pip==24.0
