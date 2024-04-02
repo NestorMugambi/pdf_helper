@@ -3,7 +3,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 import streamlit as st
 from streamlit_pdf_viewer import pdf_viewer
-
+from dotenv import load_dotenv
 import pickle
 from streamlit_extras.add_vertical_space import add_vertical_space
 from PyPDF2 import PdfReader
@@ -14,9 +14,7 @@ from langchain_community.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 import os
 import getpass
-from dotenv import load_dotenv
 load_dotenv()
-
 
 
 st.set_page_config(
@@ -65,7 +63,7 @@ def main():
 
         
         if os.path.exists(f"{store_name}"):
-            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings(),allow_dangerous_deserialization=True)
+            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings())
 
         else:            
             embeddings = OpenAIEmbeddings()
