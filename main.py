@@ -3,7 +3,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 import streamlit as st
 from streamlit_pdf_viewer import pdf_viewer
-from dotenv import load_dotenv
+
 import pickle
 from streamlit_extras.add_vertical_space import add_vertical_space
 from PyPDF2 import PdfReader
@@ -14,9 +14,10 @@ from langchain_community.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 import os
 import getpass
+from dotenv import load_dotenv
 load_dotenv()
-if "GOOGLE_API_KEY" not in os.environ:
-    os.environ["GOOGLE_API_KEY"] = getpass.getpass("AIzaSyAeZ6lZ5N7AyNHYUc-EYYRghGnlanEByoM")
+
+
 
 st.set_page_config(
     page_title="pdf_assistant",
@@ -64,7 +65,7 @@ def main():
 
         
         if os.path.exists(f"{store_name}"):
-            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings())
+            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings(),allow_dangerous_deserialization=True)
 
         else:            
             embeddings = OpenAIEmbeddings()
