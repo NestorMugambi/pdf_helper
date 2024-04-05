@@ -110,41 +110,41 @@ def main():
         with st.chat_message("assistant"):
             st.markdown(response)
 
-            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.session_state.messages.append({"role": "assistant", "content": response})       
         
-
     else:
-        ask = st.chat_input("Ask general questions ",key ="ask")
-        if ask:
-            st.session_state.messages.append({"role": "user", "content": ask})
-            with st.chat_message("user"):
-                st.markdown(ask)            
-            
-            llm = ChatGoogleGenerativeAI(model="gemini-pro",
-                                         convert_system_message_to_human=True,
-                                         safety_settings={
-                                         
-                                         HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                                         HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                                         HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE, 
-                                         HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                                         },
-            )
-            prompt_template_name=PromptTemplate(
-                                input_variables=["question"],
-                                template="""
-                                        answer only the question asked in {question} and format it in a way easy to understand        
-                                        """
-                            )
-            prompt1=prompt_template_name.format(question=ask)
+        if not pdf:
+            ask = st.chat_input("Ask general questions ",key ="ask")
+            if ask:
+                st.session_state.messages.append({"role": "user", "content": ask})
+                with st.chat_message("user"):
+                    st.markdown(ask)            
                 
-            
-            result = llm.invoke(prompt1)            
+                llm = ChatGoogleGenerativeAI(model="gemini-pro",
+                                            convert_system_message_to_human=True,
+                                            safety_settings={
+                                            
+                                            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                                            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                                            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE, 
+                                            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                                            },
+                )
+                prompt_template_name=PromptTemplate(
+                                    input_variables=["question"],
+                                    template="""
+                                            answer only the question asked in {question} and format it in a way easy to understand        
+                                            """
+                                )
+                prompt1=prompt_template_name.format(question=ask)
                     
-            with st.chat_message("assistant"):
-                st.markdown(result.content)
+                
+                result = llm.invoke(prompt1)            
+                        
+                with st.chat_message("assistant"):
+                    st.markdown(result.content)
 
-                st.session_state.messages.append({"role": "assistant", "content": result.content})
+                    st.session_state.messages.append({"role": "assistant", "content": result.content})
                 
                          
       
