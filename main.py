@@ -66,7 +66,7 @@ def main():
 
         
         if os.path.exists(f"{store_name}"):
-            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings(),allow_dangerous_deserialization=True)
+            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings())
 
         else:            
             embeddings = OpenAIEmbeddings()
@@ -85,6 +85,9 @@ def main():
     query = st.chat_input("Ask questions about your pdf")    
 
     if query:
+        if not pdf:
+            st.warning("add a pdf from the upload")
+            st.stop()
         st.session_state.messages.append({"role": "user", "content": query})
         with st.chat_message("user"):
             st.markdown(query)
