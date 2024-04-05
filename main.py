@@ -86,7 +86,7 @@ def main():
 
     if query:
         if not pdf:
-            st.warning("add a pdf from the upload")
+            st.warning("add a pdf from the upload")            
             st.stop()
         st.session_state.messages.append({"role": "user", "content": query})
         with st.chat_message("user"):
@@ -113,7 +113,7 @@ def main():
             st.session_state.messages.append({"role": "assistant", "content": response})       
         
     else:
-        if not pdf:
+        
             ask = st.chat_input("Ask general questions ",key ="ask")
             if ask:
                 st.session_state.messages.append({"role": "user", "content": ask})
