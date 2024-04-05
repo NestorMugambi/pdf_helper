@@ -1,6 +1,6 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-
+from langchain.prompts import PromptTemplate
 import streamlit as st
 from streamlit_pdf_viewer import pdf_viewer
 from dotenv import load_dotenv
@@ -13,7 +13,11 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 import os
-import getpass
+from langchain_google_genai import (
+    ChatGoogleGenerativeAI,
+    HarmBlockThreshold,
+    HarmCategory,
+)
 load_dotenv()
 
 
@@ -38,10 +42,9 @@ load_dotenv()
 def main():
     st.header("Chat with your pdf📃📃")
     
-    pdf = st.file_uploader("Upload your file" , type ="pdf")
-   
-          
-
+    pdf = st.file_uploader("Upload your file" , type ="pdf")  
+       
+             
     if pdf is not None:
         pdf_reader = PdfReader(pdf)
 
@@ -63,43 +66,87 @@ def main():
 
         
         if os.path.exists(f"{store_name}"):
-            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings())
+            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings(),allow_dangerous_deserialization=True)
 
         else:            
             embeddings = OpenAIEmbeddings()
             VectorStore = FAISS.from_texts(chunks,embedding=embeddings)
             
-            VectorStore.save_local(f"{store_name}")
+            VectorStore.save_local(f"{store_name}")       
+    
 
     if "messages" not in st.session_state:
        st.session_state.messages = []
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-    
+            st.markdown(message["content"])    
 
-    query = st.chat_input("Ask questions about your pdf")
+    query = st.chat_input("Ask questions about your pdf")    
 
     if query:
         st.session_state.messages.append({"role": "user", "content": query})
         with st.chat_message("user"):
-          st.markdown(query)
-       
+            st.markdown(query)
+        
         docs = VectorStore.similarity_search(query=query)
-        llm = ChatGoogleGenerativeAI(model="gemini-pro",convert_system_message_to_human=True)       
-
+        llm = ChatGoogleGenerativeAI(model="gemini-pro",
+                                         convert_system_message_to_human=True,
+                                         safety_settings={
+                                         
+                                         HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                                         HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                                         HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE, 
+                                         HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                                         },
+            )      
+               
         chain =load_qa_chain(llm=llm,chain_type="stuff")
         response = chain.run(input_documents=docs,question=query)
+                
         with st.chat_message("assistant"):
-           st.markdown(response)
+            st.markdown(response)
 
-        st.session_state.messages.append({"role": "assistant", "content": response})
-       
+            st.session_state.messages.append({"role": "assistant", "content": response})
+        
+
+    else:
+        ask = st.chat_input("Ask general questions ",key ="ask")
+        if ask:
+            st.session_state.messages.append({"role": "user", "content": ask})
+            with st.chat_message("user"):
+                st.markdown(ask)            
             
+            llm = ChatGoogleGenerativeAI(model="gemini-pro",
+                                         convert_system_message_to_human=True,
+                                         safety_settings={
+                                         
+                                         HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                                         HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                                         HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE, 
+                                         HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                                         },
+            )
+            prompt_template_name=PromptTemplate(
+                                input_variables=["question"],
+                                template="""
+                                        answer only the question asked in {question} and format it in a way easy to understand        
+                                        """
+                            )
+            prompt1=prompt_template_name.format(question=ask)
+                
+            
+            result = llm.invoke(prompt1)            
+                    
+            with st.chat_message("assistant"):
+                st.markdown(result.content)
 
+                st.session_state.messages.append({"role": "assistant", "content": result.content})
+                
+                         
       
 if __name__ == "__main__":
+     
      main()
     
 
