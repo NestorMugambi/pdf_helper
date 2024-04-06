@@ -85,35 +85,34 @@ def main():
     query = st.chat_input("Ask questions about your pdf")    
 
     if query:
-        if not pdf:
-            st.warning("add a pdf from the upload")            
-            st.stop()
-        st.session_state.messages.append({"role": "user", "content": query})
-        with st.chat_message("user"):
-            st.markdown(query)
-        
-        docs = VectorStore.similarity_search(query=query)
-        llm = ChatGoogleGenerativeAI(model="gemini-pro",
-                                         convert_system_message_to_human=True,
-                                         safety_settings={
-                                         
-                                         HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                                         HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                                         HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE, 
-                                         HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-                                         },
-            )      
-               
-        chain =load_qa_chain(llm=llm,chain_type="stuff")
-        response = chain.run(input_documents=docs,question=query)
+        if  pdf:           
+                st.session_state.messages.append({"role": "user", "content": query})
+                with st.chat_message("user"):
+                    st.markdown(query)
                 
-        with st.chat_message("assistant"):
-            st.markdown(response)
+                docs = VectorStore.similarity_search(query=query)
+                llm = ChatGoogleGenerativeAI(model="gemini-pro",
+                                                convert_system_message_to_human=True,
+                                                safety_settings={
+                                                
+                                                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                                                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                                                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE, 
+                                                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                                                },
+                    )      
+                    
+                chain =load_qa_chain(llm=llm,chain_type="stuff")
+                response = chain.run(input_documents=docs,question=query)
+                        
+                with st.chat_message("assistant"):
+                    st.markdown(response)
 
-            st.session_state.messages.append({"role": "assistant", "content": response})       
+                    st.session_state.messages.append({"role": "assistant", "content": response})  
+        else:
+             st.warning("Upload a pdf file to continue")     
         
-    else:
-        
+    else:        
             ask = st.chat_input("Ask general questions ",key ="ask")
             if ask:
                 st.session_state.messages.append({"role": "user", "content": ask})
