@@ -42,7 +42,7 @@ load_dotenv()
 def main():
     st.header("Chat with your pdf📃📃")
     
-    pdf = st.file_uploader("Upload your file" , type ="pdf")  
+    pdf = st.file_uploader("Upload your pdf file" , type ="pdf")  
        
              
     if pdf is not None:
