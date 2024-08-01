@@ -5,12 +5,13 @@ import streamlit as st
 from streamlit_pdf_viewer import pdf_viewer
 from dotenv import load_dotenv
 import pickle
-from streamlit_extras.add_vertical_space import add_vertical_space
+from streamlit_extras.add_vertical_space import add_vertical_space # type: ignore
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings.openai import OpenAIEmbeddings
+#from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import OpenAI
+#from langchain_community.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 import os
 from langchain_google_genai import (
@@ -66,10 +67,10 @@ def main():
 
         
         if os.path.exists(f"{store_name}"):
-            VectorStore = FAISS.load_local(f"{store_name}", OpenAIEmbeddings())
+            VectorStore = FAISS.load_local(f"{store_name}", CohereEmbeddings(),allow_dangerous_deserialization=True)
 
         else:            
-            embeddings = OpenAIEmbeddings()
+            embeddings = CohereEmbeddings()
             VectorStore = FAISS.from_texts(chunks,embedding=embeddings)
             
             VectorStore.save_local(f"{store_name}")       
@@ -80,7 +81,12 @@ def main():
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])    
+            st.markdown(message["content"])
+
+    def clear_chat_history():
+         st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
+    
 
     query = st.chat_input("Ask questions about your pdf")    
 
