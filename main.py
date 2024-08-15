@@ -70,7 +70,7 @@ def main():
             VectorStore = FAISS.load_local(f"{store_name}", CohereEmbeddings( model="embed-english-v3.0"),allow_dangerous_deserialization=True)
 
         else:            
-            embeddings = CohereEmbeddings()
+            embeddings = CohereEmbeddings(model="embed-english-v3.0")
             VectorStore = FAISS.from_texts(chunks,embedding=embeddings)
             
             VectorStore.save_local(f"{store_name}")       
