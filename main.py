@@ -67,7 +67,7 @@ def main():
 
         
         if os.path.exists(f"{store_name}"):
-            VectorStore = FAISS.load_local(f"{store_name}", CohereEmbeddings(),allow_dangerous_deserialization=True)
+            VectorStore = FAISS.load_local(f"{store_name}", CohereEmbeddings( model="embed-english-v3.0"),allow_dangerous_deserialization=True)
 
         else:            
             embeddings = CohereEmbeddings()
