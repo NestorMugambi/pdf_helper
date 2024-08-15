@@ -12,3 +12,4 @@ faiss-cpu
 pip==24.2
 langchain_cohere
 langchain_core
+grpcio
